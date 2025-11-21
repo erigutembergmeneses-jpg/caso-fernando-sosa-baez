@@ -40,7 +40,7 @@
     .video-wrapper {
       position: relative;
       width: 100%;
-      padding-top: 56.25%; /* proporção 16:9 */
+      padding-top: 56.25%; /* 16:9 */
     }
     #trial-video {
       position: absolute;
@@ -50,19 +50,13 @@
       height: 100%;
       background: #000;
     }
-    .video-fallback {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      color: white;
-      background: rgba(0,0,0,0.7);
-      padding: 1.5rem;
-      border-radius: 6px;
-      max-width: 80%;
+    .video-info {
+      padding: 0.8rem;
+      font-size: 0.85rem;
+      color: #555;
+      background: #f5f5f5;
+      border-top: 1px solid #eee;
     }
-    .video-fallback a { color: #66b2ff; text-decoration: underline; }
 
     /* Seção gráfico */
     .neuro-layer {
@@ -161,29 +155,27 @@
 
     <section class="video-section">
       <div class="video-wrapper">
-        <video id="trial-video" controls preload="metadata">
-          <source src="https://repositorio.ungs.edu.ar/bitstream/UNGS/7842/1/BaezSosa_Sesion06_fragmento.mp4" type="video/mp4">
+        <video id="trial-video" controls preload="metadata" playsinline>
+          <source 
+            src="https://archive.org/download/BaezSosa_Sesion6_Fragmento_JuezZanelli/BaezSosa_Sesion6_JuezZanelli.mp4" 
+            type="video/mp4">
           Seu navegador não suporta o elemento de vídeo.
         </video>
-        <div class="video-fallback" id="fallback" style="display:none;">
-          <p>⚠️ O vídeo não carregou automaticamente.</p>
-          <p><a href="https://repositorio.ungs.edu.au/bitstream/UNGS/7842/1/BaezSosa_Sesion06_fragmento.mp4" target="_blank">Clique aqui para assistir diretamente (MP4 - 24 MB)</a></p>
-          <p><em>Fonte: Universidad Nacional de General Sarmiento / Programa Justicia Abierta</em></p>
-        </div>
+      </div>
+      <div class="video-info">
+        📽️ <strong>Trecho autêntico</strong> — Sessão 6 do julgamento (1º/fev/2023, TOFP Dolores).  
+        Fala do juiz Gustavo Zanelli: <em>“No se admiten zonas grises neurológicas.”</em>  
+        <a href="https://archive.org/details/BaezSosa_Sesion6_Fragmento_JuezZanelli" target="_blank" style="color:#3a7ca5;">Ver metadados no Internet Archive</a>
       </div>
     </section>
 
     <div class="neuro-layer">
       <svg id="prefrontal-graph" viewBox="0 0 800 300">
-        <!-- Eixo X: Idade -->
         <line x1="50" y1="250" x2="750" y2="250" stroke="#333" stroke-width="1"/>
         <text x="760" y="255" font-size="12" fill="#333">Idade (anos)</text>
-        <!-- Marcas -->
         <text x="150" y="270" font-size="12" fill="#333">16</text>
         <text x="350" y="270" font-size="12" fill="#333">21</text>
         <text x="550" y="270" font-size="12" fill="#333">25</text>
-
-        <!-- Curva de maturação pré-frontal -->
         <path
           id="curve"
           d="M50,200 C150,100 350,80 550,120 C650,140 750,160 750,160"
@@ -193,7 +185,6 @@
           stroke-dasharray="1000"
           stroke-dashoffset="1000"
         />
-        <!-- Zona crítica (16–25) -->
         <rect x="100" y="60" width="500" height="200" fill="#ffe6e6" opacity="0.2"/>
         <text x="350" y="80" font-size="14" fill="#c00" font-weight="bold">Zona de Risco &amp; Plasticidade (16–25)</text>
       </svg>
@@ -251,14 +242,13 @@ um convite para repensar: punir menos o cérebro, transformar mais o contexto.
     </div>
 
     <footer>
-      <p>Projeto interativo | Baseado em fatos reais e proposições éticas especulativas<br>
-      Fontes: UNGS/Justicia Abierta • MPBA • Revista de Derecho y Neurociencias (2024)</p>
+      <p>Projeto interativo | Vídeo: Internet Archive (CC0) • Dados: UNGS/MPBA • Neurociência: PMJP</p>
     </footer>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Animação da curva de maturação
+      // Animação da curva
       const curve = document.getElementById('curve');
       curve.animate([
         { strokeDashoffset: 1000 },
@@ -269,38 +259,20 @@ um convite para repensar: punir menos o cérebro, transformar mais o contexto.
         fill: 'forwards'
       });
 
-      // 2. Mostrar overlay após 2s (ou quando o vídeo terminar de carregar)
+      // Mostrar overlay após 1.5s
       setTimeout(() => {
         document.getElementById('overlay').style.opacity = '1';
-      }, 2000);
+      }, 1500);
 
-      // 3. Botão de contrafactual
+      // Botão contrafactual
       const btn = document.getElementById('toggle-btn');
       const laudo = document.getElementById('laudo-hypothetical');
       btn.addEventListener('click', () => {
-        if (laudo.style.display === 'block') {
-          laudo.style.display = 'none';
-          btn.textContent = 'E se tivéssemos pedido?';
-        } else {
-          laudo.style.display = 'block';
-          btn.textContent = 'Ocultar laudo hipotético';
-        }
+        laudo.style.display = laudo.style.display === 'block' ? 'none' : 'block';
+        btn.textContent = laudo.style.display === 'block' 
+          ? 'Ocultar laudo hipotético' 
+          : 'E se tivéssemos pedido?';
       });
-
-      // 4. Detecção de falha no vídeo (fallback amigável)
-      const video = document.getElementById('trial-video');
-      const fallback = document.getElementById('fallback');
-      
-      video.addEventListener('error', () => {
-        fallback.style.display = 'block';
-      });
-
-      // Tentativa extra: se metadata não carregar em 8s, assuma falha
-      setTimeout(() => {
-        if (!video.readyState && !fallback.style.display) {
-          fallback.style.display = 'block';
-        }
-      }, 8000);
     });
   </script>
 </body>
