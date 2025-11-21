@@ -35,7 +35,34 @@
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       margin-bottom: 2.5rem;
+      position: relative;
     }
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* proporção 16:9 */
+    }
+    #trial-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+    .video-fallback {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      background: rgba(0,0,0,0.7);
+      padding: 1.5rem;
+      border-radius: 6px;
+      max-width: 80%;
+    }
+    .video-fallback a { color: #66b2ff; text-decoration: underline; }
 
     /* Seção gráfico */
     .neuro-layer {
@@ -67,6 +94,8 @@
       background: rgba(255,255,255,0.85);
       border-radius: 6px;
       max-width: 80%;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
     }
 
     /* Voz coletiva */
@@ -131,17 +160,17 @@
     </header>
 
     <section class="video-section">
-      <iframe
-        width="100%"
-        height="400"
-        src="https://repositorio.ungs.edu.ar/bitstream/UNGS/7842/1/BaezSosa_Sesion06_fragmento.mp4"
-        title="Trecho do julgamento: juiz Zanelli sobre 'zonas grises neurológicas'"
-        frameborder="0"
-        allowfullscreen
-        controls
-      >
-        Seu navegador não suporta vídeos.
-      </iframe>
+      <div class="video-wrapper">
+        <video id="trial-video" controls preload="metadata">
+          <source src="https://repositorio.ungs.edu.ar/bitstream/UNGS/7842/1/BaezSosa_Sesion06_fragmento.mp4" type="video/mp4">
+          Seu navegador não suporta o elemento de vídeo.
+        </video>
+        <div class="video-fallback" id="fallback" style="display:none;">
+          <p>⚠️ O vídeo não carregou automaticamente.</p>
+          <p><a href="https://repositorio.ungs.edu.au/bitstream/UNGS/7842/1/BaezSosa_Sesion06_fragmento.mp4" target="_blank">Clique aqui para assistir diretamente (MP4 - 24 MB)</a></p>
+          <p><em>Fonte: Universidad Nacional de General Sarmiento / Programa Justicia Abierta</em></p>
+        </div>
+      </div>
     </section>
 
     <div class="neuro-layer">
@@ -154,7 +183,7 @@
         <text x="350" y="270" font-size="12" fill="#333">21</text>
         <text x="550" y="270" font-size="12" fill="#333">25</text>
 
-        <!-- Curva de maturação pré-frontal (simplificada) -->
+        <!-- Curva de maturação pré-frontal -->
         <path
           id="curve"
           d="M50,200 C150,100 350,80 550,120 C650,140 750,160 750,160"
@@ -168,7 +197,7 @@
         <rect x="100" y="60" width="500" height="200" fill="#ffe6e6" opacity="0.2"/>
         <text x="350" y="80" font-size="14" fill="#c00" font-weight="bold">Zona de Risco &amp; Plasticidade (16–25)</text>
       </svg>
-      <div class="overlay-text">
+      <div class="overlay-text" id="overlay">
         “No se admiten zonas grises neurológicas.”
       </div>
     </div>
@@ -228,8 +257,8 @@ um convite para repensar: punir menos o cérebro, transformar mais o contexto.
   </div>
 
   <script>
-    // Animação da curva de maturação
     document.addEventListener('DOMContentLoaded', () => {
+      // 1. Animação da curva de maturação
       const curve = document.getElementById('curve');
       curve.animate([
         { strokeDashoffset: 1000 },
@@ -240,7 +269,12 @@ um convite para repensar: punir menos o cérebro, transformar mais o contexto.
         fill: 'forwards'
       });
 
-      // Botão de contrafactual
+      // 2. Mostrar overlay após 2s (ou quando o vídeo terminar de carregar)
+      setTimeout(() => {
+        document.getElementById('overlay').style.opacity = '1';
+      }, 2000);
+
+      // 3. Botão de contrafactual
       const btn = document.getElementById('toggle-btn');
       const laudo = document.getElementById('laudo-hypothetical');
       btn.addEventListener('click', () => {
@@ -252,6 +286,21 @@ um convite para repensar: punir menos o cérebro, transformar mais o contexto.
           btn.textContent = 'Ocultar laudo hipotético';
         }
       });
+
+      // 4. Detecção de falha no vídeo (fallback amigável)
+      const video = document.getElementById('trial-video');
+      const fallback = document.getElementById('fallback');
+      
+      video.addEventListener('error', () => {
+        fallback.style.display = 'block';
+      });
+
+      // Tentativa extra: se metadata não carregar em 8s, assuma falha
+      setTimeout(() => {
+        if (!video.readyState && !fallback.style.display) {
+          fallback.style.display = 'block';
+        }
+      }, 8000);
     });
   </script>
 </body>
